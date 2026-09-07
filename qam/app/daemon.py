@@ -122,13 +122,15 @@ class Daemon(Adw.Application):
             self.window.switch_to(outcome.switch_to)
             return
         if outcome.error:
+            self.window.show_toast(outcome.message, error=True)
             self.window.show_flash(outcome.message, outcome.detail, error=True)
             self.platform.notify(outcome.message, outcome.detail)
             return
-        # Show the confirmation in the hub, then get out of the way: the point
-        # of the wheel is to hand you back to whatever you were doing.
+        # Confirm the pick in the wheel, briefly, then get out of the way: the
+        # point of the wheel is to hand you back to whatever you were doing.
+        self.window.show_toast(outcome.toast or outcome.message)
         self.window.show_flash(outcome.message, outcome.detail)
-        GLib.timeout_add(260, self._close_after_action)
+        GLib.timeout_add(int(theme.TOAST_MS), self._close_after_action)
         if self.config.settings.notify and item.type == "snippet":
             self.platform.notify(f"{outcome.message}: {item.label}", outcome.detail)
 

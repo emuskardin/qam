@@ -19,6 +19,7 @@ class Outcome:
 
     message: str = ""
     detail: str = ""
+    toast: str = ""                 # short confirmation shown in the wheel
     switch_to: str | None = None    # wheel id to jump to instead of closing
     error: bool = False
 
@@ -30,27 +31,31 @@ def _summarise(text: str, limit: int = 72) -> str:
 
 def _snippet(item: Item, platform: Platform) -> Outcome:
     platform.set_clipboard(item.value)
-    return Outcome(message="Copied", detail=_summarise(item.value))
+    return Outcome(
+        message="Copied", detail=_summarise(item.value), toast="Copied to clipboard"
+    )
 
 
 def _command(item: Item, platform: Platform) -> Outcome:
     platform.run_command(item.value, shell=item.shell)
-    return Outcome(message="Ran", detail=_summarise(item.value))
+    return Outcome(message="Ran", detail=_summarise(item.value), toast="Command started")
 
 
 def _app(item: Item, platform: Platform) -> Outcome:
     platform.launch_app(item.value)
-    return Outcome(message="Launched", detail=item.label)
+    return Outcome(message="Launched", detail=item.label, toast=f"Launched {item.label}")
 
 
 def _path(item: Item, platform: Platform) -> Outcome:
     platform.open_path(item.value)
-    return Outcome(message="Opened", detail=os.path.expanduser(item.value))
+    return Outcome(
+        message="Opened", detail=os.path.expanduser(item.value), toast="Opened"
+    )
 
 
 def _uri(item: Item, platform: Platform) -> Outcome:
     platform.open_uri(item.value)
-    return Outcome(message="Opened", detail=_summarise(item.value))
+    return Outcome(message="Opened", detail=_summarise(item.value), toast="Opened")
 
 
 def _wheel(item: Item, _platform: Platform) -> Outcome:

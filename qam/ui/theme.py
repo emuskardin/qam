@@ -70,6 +70,14 @@ HUB_HINT_SIZE = 10
 FOOTER_SIZE = 10
 FONT = "Cantarell"
 
+# Long enough to register as a confirmation, short enough that the wheel still
+# feels like it gets out of your way.
+TOAST_MS = 620.0
+TOAST_SIZE = 11
+TOAST_PAD_X = 16.0
+TOAST_PAD_Y = 7.0
+TOAST_OFFSET = 34.0              # above the top of the wheel
+
 OPEN_MS = 150.0
 CLOSE_MS = 100.0
 SWITCH_MS = 130.0                # wheel-to-wheel cross-fade

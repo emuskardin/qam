@@ -58,6 +58,7 @@ class WheelView(Gtk.Widget):
 
         self._hub(snapshot, cx, cy, inner, wheel, state)
         self._footer(snapshot, cx, cy, outer, state)
+        self._toast(snapshot, cx, cy, outer, state)
 
         snapshot.restore()
         snapshot.pop()
@@ -152,6 +153,25 @@ class WheelView(Gtk.Widget):
             self.text.centred(snapshot, hint, cx, cy + 14, theme.HUB_HINT_SIZE,
                               theme.TEXT_DIM, width=width)
 
+    def _toast(self, snapshot, cx, cy, outer, state):
+        """A short confirmation above the wheel, so you see the pick land."""
+        toast = state["toast"]
+        if not toast:
+            return
+        text, error = toast
+        width, height = self.text.measure(text, theme.TOAST_SIZE, bold=True)
+        plate_width = width + theme.TOAST_PAD_X * 2
+        plate_height = height + theme.TOAST_PAD_Y * 2
+        top = cy - outer - theme.TOAST_OFFSET - plate_height
+        plate = render.rounded_rect_path(
+            cx - plate_width / 2.0, top, plate_width, plate_height, plate_height / 2.0
+        )
+        render.fill(snapshot, plate, theme.WARNING if error else state["accent"])
+        self.text.centred(
+            snapshot, text, cx, top + plate_height / 2.0,
+            theme.TOAST_SIZE, theme.TEXT_ON_ACCENT, bold=True,
+        )
+
     def _footer(self, snapshot, cx, cy, outer, state):
         """The caption under the wheel: wheel dots, warnings and key hints.
 
@@ -237,6 +257,7 @@ class Overlay(Gtk.ApplicationWindow):
         self.progress = 0.0
         self.target = 0.0
         self.flash: tuple[str, str, bool] | None = None
+        self.toast: tuple[str, bool] | None = None
         self.editing = False
         self.edit_hint = ""
         self._alt_armed = False
@@ -314,6 +335,7 @@ class Overlay(Gtk.ApplicationWindow):
             "inner": self.config.settings.inner_radius,
             "outer": self.config.settings.outer_radius,
             "flash": self.flash,
+            "toast": self.toast,
             "editing": self.editing,
             "edit_hint": self.edit_hint,
             "warnings": self.config.warnings,
@@ -339,6 +361,7 @@ class Overlay(Gtk.ApplicationWindow):
             self.hovered = None
             self.heat.clear()
             self.flash = None
+            self.toast = None
             self.editing = False
             self._pointer_seen = False
             self.progress = 0.0
@@ -548,6 +571,10 @@ class Overlay(Gtk.ApplicationWindow):
         self.flash = None
         self.view.queue_draw()
 
+    def show_toast(self, text: str, error: bool = False):
+        self.toast = (text, error)
+        self.view.queue_draw()
+
     def show_flash(self, message: str, detail: str = "", error: bool = False):
         self.flash = (message, detail, error)
         self.view.queue_draw()
@@ -560,6 +587,7 @@ class Overlay(Gtk.ApplicationWindow):
     def _clear_flash(self):
         self._flash_source = None
         self.flash = None
+        self.toast = None
         self.view.queue_draw()
         return GLib.SOURCE_REMOVE
 
