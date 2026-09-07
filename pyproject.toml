@@ -1,0 +1,19 @@
+[project]
+name = "qam"
+version = "0.1.0"
+description = "A game-style radial quick access menu for the desktop"
+requires-python = ">=3.11"
+# No third-party packages: GTK4 arrives through the system PyGObject, and
+# tomllib ships with Python. Install into a venv created with
+# --system-site-packages so `gi` is importable.
+dependencies = []
+
+[project.scripts]
+qam = "qam.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["qam", "qam.core", "qam.ui", "qam.app", "qam.platform", "qam.platform.gnome"]

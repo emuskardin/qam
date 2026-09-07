@@ -1,0 +1,76 @@
+# qam configuration
+#
+# Press Alt+Q to open the wheel, flick the mouse towards a slice and release
+# Alt to pick it. Number keys 1-9 pick directly, Tab cycles wheels, Esc closes.
+# Press E inside the wheel to edit slices without leaving the keyboard.
+#
+# Item types:
+#   snippet  copy the value to the clipboard   (the everyday one)
+#   command  run the value
+#   app      launch a desktop application, e.g. "org.gnome.Nautilus.desktop"
+#   path     open a file or folder
+#   uri      open a URL
+#   wheel    jump to another wheel by its id
+
+[settings]
+hotkey = "<Alt>q"
+default_wheel = "main"
+notify = true
+
+[[wheel]]
+id = "main"
+name = "Main"
+
+  [[wheel.item]]
+  label = "Pods (all ns)"
+  type = "snippet"
+  value = "kubectl get pods -A"
+
+  [[wheel.item]]
+  label = "Follow logs"
+  type = "snippet"
+  value = "kubectl logs -f -n $NS $POD"
+
+  [[wheel.item]]
+  label = "Contexts"
+  type = "snippet"
+  value = "kubectl config get-contexts"
+
+  [[wheel.item]]
+  label = "Home"
+  type = "path"
+  value = "~"
+
+  [[wheel.item]]
+  label = "Files"
+  type = "app"
+  value = "org.gnome.Nautilus.desktop"
+
+  [[wheel.item]]
+  label = "Dev"
+  type = "wheel"
+  value = "dev"
+
+[[wheel]]
+id = "dev"
+name = "Dev"
+
+  [[wheel.item]]
+  label = "Git status"
+  type = "snippet"
+  value = "git status -sb"
+
+  [[wheel.item]]
+  label = "Git log"
+  type = "snippet"
+  value = "git log --oneline --graph --decorate -20"
+
+  [[wheel.item]]
+  label = "Prune branches"
+  type = "snippet"
+  value = "git branch --merged | grep -v '\\*' | xargs -r git branch -d"
+
+  [[wheel.item]]
+  label = "Main"
+  type = "wheel"
+  value = "main"

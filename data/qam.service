@@ -1,0 +1,16 @@
+# Reference copy. `qam install` writes this into
+# ~/.local/share/systemd/user/ with the right ExecStart for your install.
+[Unit]
+Description=qam quick access menu daemon
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=qam daemon
+Restart=on-failure
+RestartSec=2
+Slice=app.slice
+
+[Install]
+WantedBy=graphical-session.target
