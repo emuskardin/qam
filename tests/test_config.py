@@ -14,7 +14,11 @@ class Parsing(unittest.TestCase):
         parsed = config.parse(config.EXAMPLE)
         self.assertEqual([w.id for w in parsed.wheels], ["main", "dev"])
         self.assertEqual(parsed.warnings, [])
-        self.assertEqual(parsed.wheels[0].items[0].value, "kubectl get pods -A")
+        self.assertEqual(parsed.wheels[0].items[0].value, "firefox.desktop")
+
+    def test_checked_in_example_matches_the_installed_default(self):
+        checked_in = Path("data/config.example.toml").read_text(encoding="utf-8")
+        self.assertEqual(checked_in.rstrip(), config.EXAMPLE.rstrip())
 
     def test_missing_settings_fall_back_to_defaults(self):
         parsed = config.parse('[[wheel]]\nid = "a"\n')

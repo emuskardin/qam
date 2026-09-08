@@ -35,7 +35,7 @@ EXAMPLE = """\
 # Item types:
 #   snippet  copy the value to the clipboard   (the everyday one)
 #   command  run the value
-#   app      launch a desktop application, e.g. "org.gnome.Nautilus.desktop"
+#   app      launch a desktop application, e.g. "firefox.desktop"
 #   path     open a file or folder
 #   uri      open a URL
 #   wheel    jump to another wheel by its id
@@ -50,19 +50,9 @@ id = "main"
 name = "Main"
 
   [[wheel.item]]
-  label = "Pods (all ns)"
-  type = "snippet"
-  value = "kubectl get pods -A"
-
-  [[wheel.item]]
-  label = "Follow logs"
-  type = "snippet"
-  value = "kubectl logs -f -n $NS $POD"
-
-  [[wheel.item]]
-  label = "Contexts"
-  type = "snippet"
-  value = "kubectl config get-contexts"
+  label = "Firefox"
+  type = "app"
+  value = "firefox.desktop"
 
   [[wheel.item]]
   label = "Home"
@@ -70,9 +60,19 @@ name = "Main"
   value = "~"
 
   [[wheel.item]]
-  label = "Files"
-  type = "app"
-  value = "org.gnome.Nautilus.desktop"
+  label = "Documents"
+  type = "path"
+  value = "~/Documents"
+
+  [[wheel.item]]
+  label = "Downloads"
+  type = "path"
+  value = "~/Downloads"
+
+  [[wheel.item]]
+  label = "Terminal"
+  type = "command"
+  value = "x-terminal-emulator"
 
   [[wheel.item]]
   label = "Dev"
@@ -84,24 +84,20 @@ id = "dev"
 name = "Dev"
 
   [[wheel.item]]
-  label = "Git status"
-  type = "snippet"
-  value = "git status -sb"
+  label = "VS Code"
+  type = "app"
+  value = "code.desktop"
 
   [[wheel.item]]
-  label = "Git log"
-  type = "snippet"
-  value = "git log --oneline --graph --decorate -20"
-
-  [[wheel.item]]
-  label = "Prune branches"
-  type = "snippet"
-  value = "git branch --merged | grep -v '\\\\*' | xargs -r git branch -d"
+  label = "PyCharm"
+  type = "app"
+  value = "pycharm.desktop"
 
   [[wheel.item]]
   label = "Main"
   type = "wheel"
   value = "main"
+
 """
 
 
