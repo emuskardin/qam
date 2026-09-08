@@ -74,6 +74,18 @@ class Sectors(unittest.TestCase):
         start, end = geometry.sector_bounds(0, 6, gap)
         self.assertAlmostEqual(end - start, geometry.sector_span(6) - gap)
 
+    def test_pixel_gap_is_constant_at_each_radius(self):
+        gap = 7.0
+        inner, outer = 100.0, 250.0
+        inner_start, inner_end = geometry.sector_bounds_for_radius(0, 6, inner, gap)
+        outer_start, outer_end = geometry.sector_bounds_for_radius(0, 6, outer, gap)
+        self.assertAlmostEqual(
+            (geometry.sector_span(6) - (inner_end - inner_start)) * inner, gap
+        )
+        self.assertAlmostEqual(
+            (geometry.sector_span(6) - (outer_end - outer_start)) * outer, gap
+        )
+
     def test_centroid_of_the_top_slice_is_directly_above_centre(self):
         dx, dy = geometry.sector_centroid(0, 8, 100, 200)
         self.assertAlmostEqual(dx, 0.0)

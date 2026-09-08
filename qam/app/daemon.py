@@ -74,6 +74,12 @@ class Daemon(Adw.Application):
         if self.window:
             self.window.refresh()
 
+    def _sync_theme(self, style, *_args):
+        """Keep both GTK widgets and our custom snapshot drawing in sync."""
+        theme.set_dark(style.get_dark())
+        if self.window:
+            self.window.refresh()
+
     # ----------------------------------------------------------------- startup
     def do_startup(self):
         Adw.Application.do_startup(self)
@@ -88,7 +94,9 @@ class Daemon(Adw.Application):
         self.store.watch(self._on_config_changed)
         self._resolve_accent()
         style = Adw.StyleManager.get_default()
-        style.set_color_scheme(Adw.ColorScheme.FORCE_DARK)
+        style.set_color_scheme(Adw.ColorScheme.DEFAULT)
+        self._sync_theme(style)
+        style.connect("notify::dark", self._sync_theme)
         self.window = Overlay(self, self)
 
     def do_activate(self):

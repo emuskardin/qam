@@ -52,6 +52,21 @@ def sector_bounds(index: int, count: int, gap: float = 0.0) -> tuple[float, floa
     return center - half, center + half
 
 
+def sector_bounds_for_radius(
+    index: int, count: int, radius: float, gap: float
+) -> tuple[float, float]:
+    """Sector bounds with a tangential gap measured in pixels.
+
+    A fixed angular gap looks like a narrow crack at the hub and a wide one at
+    the rim.  Converting the requested gap to an angle at each radius keeps
+    the visible spacing consistent across the ring.
+    """
+    if radius <= 0:
+        raise ValueError("radius must be positive")
+    angular_gap = gap / radius
+    return sector_bounds(index, count, angular_gap)
+
+
 def hit_test(
     dx: float,
     dy: float,

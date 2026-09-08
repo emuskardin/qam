@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import math
-
 RGBA = tuple[float, float, float, float]
 
 
@@ -29,36 +27,59 @@ def with_alpha(colour: RGBA, alpha: float) -> RGBA:
 # Only a soft shadow hugging the wheel separates it from whatever is behind.
 BACKDROP: RGBA = (0.0, 0.0, 0.0, 0.0)
 
-SECTOR_IDLE: RGBA = rgba("#1b1e26", 0.90)
+_DARK = {
+    "SECTOR_IDLE": rgba("#1b1e26", 0.90),
+    "SECTOR_EDGE": rgba("#ffffff", 0.10),
+    "SECTOR_EDGE_ACTIVE": rgba("#ffffff", 0.55),
+    "HUB_FILL": rgba("#0e1013", 0.90),
+    "HUB_EDGE": rgba("#ffffff", 0.12),
+    "TEXT": rgba("#f2f4f8", 0.96),
+    "TEXT_DIM": rgba("#f2f4f8", 0.68),
+    "WARNING": rgba("#ff7b72", 0.95),
+    "PLATE": rgba("#0e1013", 0.80),
+    "PLATE_EDGE": rgba("#ffffff", 0.08),
+    "SHADOW": (0.0, 0.0, 0.0, 0.34),
+}
+_LIGHT = {
+    "SECTOR_IDLE": rgba("#f7f7f8", 0.94),
+    "SECTOR_EDGE": rgba("#1f2328", 0.14),
+    "SECTOR_EDGE_ACTIVE": rgba("#1f2328", 0.48),
+    "HUB_FILL": rgba("#ffffff", 0.94),
+    "HUB_EDGE": rgba("#1f2328", 0.16),
+    "TEXT": rgba("#1f2328", 0.96),
+    "TEXT_DIM": rgba("#4d5358", 0.78),
+    "WARNING": rgba("#c01c28", 0.96),
+    "PLATE": rgba("#ffffff", 0.88),
+    "PLATE_EDGE": rgba("#1f2328", 0.12),
+    "SHADOW": (0.0, 0.0, 0.0, 0.22),
+}
+
+
+def set_dark(dark: bool) -> None:
+    """Apply the desktop colour scheme to the hand-drawn overlay."""
+    globals().update(_DARK if dark else _LIGHT)
+
+
+# Initialise module-level names for non-GTK users and the first snapshot.
+set_dark(True)
+
 SECTOR_HOVER_MIX = 0.90          # how far an active sector travels towards the accent
-SECTOR_EDGE: RGBA = rgba("#ffffff", 0.10)
-SECTOR_EDGE_ACTIVE: RGBA = rgba("#ffffff", 0.55)
-
-HUB_FILL: RGBA = rgba("#0e1013", 0.90)
-HUB_EDGE: RGBA = rgba("#ffffff", 0.12)
-
-TEXT: RGBA = rgba("#f2f4f8", 0.96)
-TEXT_DIM: RGBA = rgba("#f2f4f8", 0.68)
 TEXT_ON_ACCENT: RGBA = rgba("#ffffff", 1.0)
-WARNING: RGBA = rgba("#ff7b72", 0.95)
 
 # The caption under the wheel sits directly on the desktop, so it carries its
 # own backing plate - without one it is unreadable over a light wallpaper.
-PLATE: RGBA = rgba("#0e1013", 0.80)
-PLATE_EDGE: RGBA = rgba("#ffffff", 0.08)
 PLATE_PAD_X = 13.0
 PLATE_PAD_Y = 5.0
 PLATE_GAP = 7.0                  # vertical space between caption pills
 DOT_SPACING = 18.0               # between the wheel indicator dots
 DOT_RADIUS = 4.0
 
-SHADOW: RGBA = (0.0, 0.0, 0.0, 0.34)
 SHADOW_SPREAD = 18.0             # px of soft shadow outside the wheel
 
 DEFAULT_ACCENT: RGBA = rgba("#3584e4")
 
 # Geometry (px, logical). Radii are overridable from [settings].
-SECTOR_GAP = math.radians(2.4)   # empty wedge between neighbouring sectors
+SECTOR_GAP = 7.0                  # empty space between neighbouring sectors (px)
 HOVER_LIFT = 12.0                # how far the active sector grows outwards
 CORNER_INSET = 3.0
 

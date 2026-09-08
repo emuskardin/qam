@@ -90,13 +90,14 @@ class WheelView(Gtk.Widget):
         colour = theme.mix(theme.TEXT_DIM, theme.TEXT_ON_ACCENT, max(heat, 0.40))
 
         icon_drawn = render.draw_icon(
-            snapshot, self, item.icon_name, ix, iy - 13, theme.ICON_SIZE, colour
+            snapshot, self, item.icon_name, ix, iy - 20, theme.ICON_SIZE, colour
         )
         arc = geometry.sector_span(count) * (inner + grown) / 2.0
         self.text.centred(
-            snapshot, item.label, ix, iy + (15 if icon_drawn else 0),
+            snapshot, item.label, ix, iy + (24 if icon_drawn else 0),
             theme.LABEL_SIZE, colour, bold=heat > 0.5,
             width=int(min(max(arc * 0.8, 72.0), 160.0)),
+            wrap=True,
         )
 
         # Slices carry their 1-9 shortcut so the keyboard route is discoverable.

@@ -8,12 +8,14 @@ GPU-accelerated path for free.
 from __future__ import annotations
 
 import math
+from functools import lru_cache
+from pathlib import Path
 
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Gsk", "4.0")
-from gi.repository import Gdk, Graphene, Gsk, Gtk, Pango  # noqa: E402
+from gi.repository import Gdk, Gio, GLib, Graphene, Gsk, Gtk, Pango  # noqa: E402
 
 from . import geometry, theme  # noqa: E402
 
@@ -47,14 +49,19 @@ def _arc_points(cx, cy, radius, start, end, reverse=False):
 
 
 def sector_path(cx, cy, index, count, inner, outer, gap=theme.SECTOR_GAP) -> Gsk.Path:
-    """A closed donut-wedge for one slice of the wheel."""
-    start, end = geometry.sector_bounds(index, count, gap)
+    """A donut-wedge with a constant-width gap at the hub and rim."""
+    outer_start, outer_end = geometry.sector_bounds_for_radius(
+        index, count, outer, gap
+    )
+    inner_start, inner_end = geometry.sector_bounds_for_radius(
+        index, count, inner, gap
+    )
     builder = Gsk.PathBuilder.new()
-    outer_points = list(_arc_points(cx, cy, outer, start, end))
+    outer_points = list(_arc_points(cx, cy, outer, outer_start, outer_end))
     builder.move_to(*outer_points[0])
     for x, y in outer_points[1:]:
         builder.line_to(x, y)
-    for x, y in _arc_points(cx, cy, inner, start, end, reverse=True):
+    for x, y in _arc_points(cx, cy, inner, inner_start, inner_end, reverse=True):
         builder.line_to(x, y)
     builder.close()
     return builder.to_path()
@@ -119,13 +126,16 @@ class TextRenderer:
             self._fonts[key] = description
         return self._fonts[key]
 
-    def layout(self, text: str, size: int, bold=False, width=0) -> Pango.Layout:
+    def layout(self, text: str, size: int, bold=False, width=0, wrap=False) -> Pango.Layout:
         layout = self.widget.create_pango_layout(text)
         layout.set_font_description(self.font(size, bold))
         if width:
             layout.set_width(width * Pango.SCALE)
-            layout.set_ellipsize(Pango.EllipsizeMode.END)
             layout.set_alignment(Pango.Alignment.CENTER)
+            if wrap:
+                layout.set_wrap(Pango.WrapMode.WORD_CHAR)
+            else:
+                layout.set_ellipsize(Pango.EllipsizeMode.END)
         return layout
 
     def measure(self, text: str, size: int, bold=False, width=0) -> tuple[float, float]:
@@ -135,11 +145,11 @@ class TextRenderer:
         extent = self.layout(text, size, bold, width).get_pixel_extents()[1]
         return float(extent.width), float(extent.height)
 
-    def centred(self, snapshot, text, x, y, size, colour, bold=False, width=0) -> float:
+    def centred(self, snapshot, text, x, y, size, colour, bold=False, width=0, wrap=False) -> float:
         """Draw `text` centred on (x, y). Returns its height."""
         if not text:
             return 0.0
-        layout = self.layout(text, size, bold, width)
+        layout = self.layout(text, size, bold, width, wrap)
         extent = layout.get_pixel_extents()[1]
         snapshot.save()
         snapshot.translate(point(x - extent.width / 2.0 - extent.x,
@@ -149,8 +159,26 @@ class TextRenderer:
         return extent.height
 
 
+@lru_cache(maxsize=64)
+def _image_icon(path: str):
+    try:
+        return Gdk.Texture.new_from_file(Gio.File.new_for_path(path))
+    except GLib.Error:
+        return None
+
+
 def draw_icon(snapshot, widget: Gtk.Widget, icon_name: str, x, y, size, colour) -> bool:
     """Paint a symbolic icon centred on (x, y), recoloured to `colour`."""
+    path = Path(icon_name).expanduser()
+    if path.is_file():
+        texture = _image_icon(str(path))
+        if texture is None:
+            return False
+        snapshot.save()
+        snapshot.translate(point(x - size / 2.0, y - size / 2.0))
+        texture.snapshot(snapshot, size, size)
+        snapshot.restore()
+        return True
     theme_icons = Gtk.IconTheme.get_for_display(widget.get_display())
     paintable = theme_icons.lookup_icon(
         icon_name, None, size, widget.get_scale_factor(),
