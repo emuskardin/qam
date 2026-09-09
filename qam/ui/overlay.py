@@ -18,6 +18,7 @@ gi.require_version("Gdk", "4.0")
 from gi.repository import Gdk, GLib, Gtk  # noqa: E402
 
 from . import geometry, render, theme  # noqa: E402
+from .. import APP_ID  # noqa: E402
 from ..core.model import Config, Item, Wheel  # noqa: E402
 
 
@@ -87,7 +88,10 @@ class WheelView(Gtk.Widget):
 
         dx, dy = geometry.sector_centroid(index, count, inner, grown)
         ix, iy = cx + dx, cy + dy
-        colour = theme.mix(theme.TEXT_DIM, theme.TEXT_ON_ACCENT, max(heat, 0.40))
+        # Only a hovered slice is filled with the accent, so only a hovered
+        # slice wants text light enough to sit on it. Blending idle labels
+        # towards white regardless washes them out over the light palette.
+        colour = theme.mix(theme.TEXT_DIM, theme.TEXT_ON_ACCENT, heat)
 
         icon_drawn = render.draw_icon(
             snapshot, self, item.icon_name, ix, iy - 20, theme.ICON_SIZE, colour
@@ -251,6 +255,7 @@ class Overlay(Gtk.ApplicationWindow):
         self.controller = controller
         self.set_decorated(False)
         self.set_title("qam")
+        self.set_icon_name(APP_ID)
 
         self.wheel_index = 0
         self.hovered: int | None = None

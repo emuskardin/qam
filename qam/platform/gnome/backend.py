@@ -13,7 +13,7 @@ gi.require_version("Gdk", "4.0")
 from gi.repository import Gio, GLib  # noqa: E402
 
 from ... import APP_ID  # noqa: E402
-from . import hotkey, runtime, service  # noqa: E402
+from . import appicon, hotkey, runtime, service  # noqa: E402
 
 
 class GnomePlatform:
@@ -34,6 +34,12 @@ class GnomePlatform:
 
     def uninstall_service(self) -> str:
         return service.uninstall()
+
+    def install_desktop_entry(self, executable: list[str], source_root: str | None = None) -> str:
+        return appicon.install(executable, source_root)
+
+    def uninstall_desktop_entry(self) -> str:
+        return appicon.uninstall()
 
     # -------------------------------------------------------------- runtime
     def set_clipboard(self, text: str) -> None:
@@ -82,6 +88,7 @@ class GnomePlatform:
         for label, (ok, detail) in (
             ("hotkey", hotkey.status()),
             ("service", service.status()),
+            ("icon", appicon.status()),
             ("daemon", self.daemon_running()),
         ):
             rows.append((label, detail, ok))

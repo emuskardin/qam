@@ -2,7 +2,7 @@
 
 A radial quick menu for GNOME. Open apps, folders, and commands in the same way you select weapon and potions in RPGs.
 
-![qam wheel](docs/wheel.png)
+![qam wheel](assets/wheel.png)
 
 ## Use it
 
@@ -29,6 +29,12 @@ git clone <this repo> && cd qam
 Use `/usr/bin/python3`. Linux distributions usually provide GTK's `gi` module
 for the system Python. A virtualenv, pyenv, or another `python3` on your PATH
 may report `No module named 'gi'`.
+
+Installing registers a systemd user service, so qam starts with your session
+and is ready the moment you press the shortcut. It opens nothing at login: no
+wheel, no window, nothing in the tray - the daemon just waits for the key. It
+also installs a desktop entry with an icon drawn from the wheel itself, which
+is what GNOME shows for its notifications and in the app grid.
 
 The wheel configuration is in `~/.config/qam/config.toml`. Press **E** while
 the menu is open to edit it in qam, or open that file in any editor. Changes
@@ -78,4 +84,9 @@ installation with:
 
 The `hotkey` setting in `config.toml` supplies qam's default at install time.
 Check the setup with `/usr/bin/python3 -m qam doctor`. Run
-`/usr/bin/python3 -m qam uninstall` to remove the service and shortcut.
+`/usr/bin/python3 -m qam uninstall` to remove the service, the shortcut and the
+desktop entry.
+
+The screenshot and the app icon in `assets/` are both drawn by the wheel's own
+rendering code - regenerate them with `/usr/bin/python3 tools/render_assets.py`
+after any visual change.

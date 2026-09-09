@@ -20,8 +20,19 @@ from .editing import EditSession  # noqa: E402
 
 
 class Daemon(Adw.Application):
-    def __init__(self):
+    def __init__(self, service: bool = False):
+        # GTK hands the program name to Wayland as the surface's app id, and
+        # GNOME matches that against the desktop entry to find an icon. Left
+        # alone it would be "__main__.py", and the wheel would show up in the
+        # dash and the switcher as an unknown application.
+        GLib.set_prgname(APP_ID)
+        GLib.set_application_name("qam")
         super().__init__(application_id=APP_ID, flags=Gio.ApplicationFlags.FLAGS_NONE)
+        # Started by systemd at login the daemon has to come up invisibly: it is
+        # a hotkey listener, not a window. GApplication.run() activates the
+        # application when it is given no arguments, so a service start has to
+        # swallow that first activation - later ones are real user requests.
+        self._swallow_activation = service
         self.platform = detect()
         self.store: config_module.ConfigStore | None = None
         self.window: Overlay | None = None
@@ -100,8 +111,12 @@ class Daemon(Adw.Application):
         self.window = Overlay(self, self)
 
     def do_activate(self):
-        # Plain activation (no action) also opens the wheel, so `qam show`
-        # works even before the keybinding is installed.
+        # Plain activation (no action) also opens the wheel, so `qam` on its own
+        # works even before the keybinding is installed - every activation except
+        # the one that starting the service produces.
+        if self._swallow_activation:
+            self._swallow_activation = False
+            return
         self.show_wheel()
 
     # ------------------------------------------------------------------- wheel

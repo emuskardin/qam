@@ -43,7 +43,7 @@ def _daemon_argv() -> tuple[list[str], str | None]:
 def cmd_daemon(args) -> int:
     from .app import Daemon
 
-    return Daemon().run([sys.argv[0]])
+    return Daemon(service=True).run([sys.argv[0]])
 
 
 def _activate(action: str) -> int:
@@ -94,6 +94,7 @@ def cmd_install(args) -> int:
 
     argv, source_root = _daemon_argv()
     print(f"service   {platform.install_service(argv, source_root)}")
+    print(f"icon      {platform.install_desktop_entry([*argv[:-1], 'show'], source_root)}")
     print(f"hotkey    {platform.install_hotkey(hotkey)}")
     print()
     print(f"Press {hotkey.replace('<', '').replace('>', '+')} to open the wheel.")
@@ -104,6 +105,7 @@ def cmd_install(args) -> int:
 def cmd_uninstall(args) -> int:
     platform = _platform()
     print(f"hotkey    {platform.uninstall_hotkey()}")
+    print(f"icon      {platform.uninstall_desktop_entry()}")
     print(f"service   {platform.uninstall_service()}")
     print(f"config    left in place at {config_module.config_path()}")
     return 0

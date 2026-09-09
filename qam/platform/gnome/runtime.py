@@ -9,6 +9,8 @@ from pathlib import Path
 
 from gi.repository import Gdk, Gio, GLib
 
+from ... import APP_ID
+
 NOTIFICATION_ID = "qam-action"
 NOTIFICATION_SECONDS = 3
 
@@ -51,6 +53,8 @@ def notify(title: str, body: str = "") -> None:
     if body:
         notification.set_body(body)
     notification.set_priority(Gio.NotificationPriority.LOW)
+    # The wheel mark, installed alongside the desktop entry.
+    notification.set_icon(Gio.ThemedIcon.new(APP_ID))
     application.send_notification(NOTIFICATION_ID, notification)
     # These are confirmations, not messages worth keeping around.
     GLib.timeout_add_seconds(
