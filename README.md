@@ -65,15 +65,16 @@ name = "Main"
 | Type | Value |
 |---|---|
 | `app` | A desktop-entry ID such as `firefox.desktop` or `code.desktop` |
-| `command` | A program on `PATH`, such as `x-terminal-emulator` |
+| `command` | A program on `PATH`, such as `xdg-open Desktop/experiments.md` |
 | `path` | A file or folder, such as `~/Downloads` |
 | `uri` | A web address |
 | `snippet` | Text copied to the clipboard |
 | `wheel` | Another wheel ID |
 
 Desktop entries usually live in `/usr/share/applications` or
-`~/.local/share/applications`. Commands run detached. Set `shell = true` on an
-item when it needs pipes, globbing, or other shell syntax.
+`~/.local/share/applications`. Commands run detached in the background, with
+relative paths resolved from your home directory. Set `shell = true` on an item
+when it needs pipes, globbing, or other shell syntax.
 
 GNOME stores the active shortcut in **Settings → Keyboard**. Set it during
 installation with:

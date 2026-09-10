@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import os
-import shlex
-import subprocess
 from pathlib import Path
 
 from gi.repository import Gdk, Gio, GLib
 
 from ... import APP_ID
+from ..launch import run_command
 
 NOTIFICATION_ID = "qam-action"
 NOTIFICATION_SECONDS = 3
@@ -85,18 +84,3 @@ def open_uri(uri: str) -> None:
     if "://" not in uri:
         uri = f"https://{uri}"
     Gio.AppInfo.launch_default_for_uri(uri, None)
-
-
-def run_command(command: str, shell: bool = False) -> None:
-    argv = ["/bin/sh", "-c", command] if shell else shlex.split(command)
-    if not argv:
-        raise RuntimeError("empty command")
-    # start_new_session detaches the child so it outlives the daemon and never
-    # inherits its controlling terminal.
-    subprocess.Popen(
-        argv,
-        start_new_session=True,
-        stdin=subprocess.DEVNULL,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
